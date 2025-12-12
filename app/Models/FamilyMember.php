@@ -5,14 +5,14 @@ namespace App\Models;
 use App\Traits\UUID;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class HeadOfFamily extends Model
+class FamilyMember extends Model
 {
     use SoftDeletes, UUID;
 
     protected $fillable = [
+        'head_of_family_id',
         'user_id',
         'profile_picture',
         'identity_number',
@@ -21,6 +21,7 @@ class HeadOfFamily extends Model
         'phone_number',
         'occupation',
         'marital_status',
+        'relation',
     ];
 
     public function user(): BelongsTo
@@ -28,8 +29,8 @@ class HeadOfFamily extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function familyMembers(): HasMany
+    public function headOfFamily(): BelongsTo
     {
-        return $this->hasMany(FamilyMember::class);
+        return $this->belongsTo(HeadOfFamily::class);
     }
 }
