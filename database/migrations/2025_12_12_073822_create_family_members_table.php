@@ -11,8 +11,8 @@ return new class extends Migration
         Schema::create('family_members', function (Blueprint $table) {
             $table->uuid('id')->primary();
 
-            $table->uuid('head_of_family');
-            $table->foreign('head_of_family')->references('id')->on('head_of_families');
+            $table->uuid('head_of_family_id');
+            $table->foreign('head_of_family_id')->references('id')->on('head_of_families');
 
             $table->uuid('user_id');
             $table->foreign('user_id')->references('id')->on('users');
