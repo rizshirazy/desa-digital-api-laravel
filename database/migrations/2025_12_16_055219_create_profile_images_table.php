@@ -12,7 +12,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
 
             $table->uuid('profile_id');
-            $table->foreign('profile_id')->on('id')->references('profiles');
+            $table->foreign('profile_id')->references('id')->on('profiles');
 
             $table->string('image');
             $table->timestamps();

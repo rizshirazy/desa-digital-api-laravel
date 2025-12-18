@@ -12,10 +12,10 @@ return new class extends Migration
             $table->uuid('id')->primary();
 
             $table->uuid('development_id');
-            $table->foreign('development_id')->on('id')->references('developments');
+            $table->foreign('development_id')->references('id')->on('developments');
 
             $table->uuid('user_id');
-            $table->foreign('user_id')->on('id')->references('users');
+            $table->foreign('user_id')->references('id')->on('users');
 
             $table->enum('status', ['approved', 'pending', 'rejected']);
             $table->timestamps();
