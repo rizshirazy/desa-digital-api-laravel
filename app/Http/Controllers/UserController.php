@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ResponseHelper;
+use App\Http\Requests\UserRequest;
 use App\Http\Resources\PaginateResource;
 use App\Http\Resources\UserResource;
 use App\Interfaces\UserRepositoryInterface;
@@ -39,9 +40,15 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(UserRequest $request)
     {
-        //
+        try {
+            $user = $this->userRepository->create($request->validated());
+
+            return ResponseHelper::JsonResponse(true, 'User berhasil dibuat', UserResource::make($user), 201);
+        } catch (Exception $e) {
+            return ResponseHelper::JsonResponse(false, $e->getMessage(), null, 500);
+        }
     }
 
     /**
