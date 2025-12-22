@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use App\Traits\UUID;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -51,6 +52,18 @@ class User extends Authenticatable
     public function developmentApplicants(): HasMany
     {
         return $this->hasMany(DevelopmentApplicant::class);
+    }
+
+    public function scopeSearch(Builder $query, ?string $search): void
+    {
+        $query->when($search ?? null, function ($query, $search) {
+            $query->where(function ($query) use ($search) {
+                $query->whereAny([
+                    'name',
+                    'email',
+                ], 'ILIKE', "%{$search}%");
+            });
+        });
     }
 
     /**
