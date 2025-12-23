@@ -25,6 +25,11 @@ class UserRepository implements UserRepositoryInterface
         return $query->paginate($rowPerPage);
     }
 
+    public function getById(string $id)
+    {
+        return User::where('id', $id)->first();
+    }
+
     public function create(array $data)
     {
         DB::beginTransaction();
@@ -35,6 +40,62 @@ class UserRepository implements UserRepositoryInterface
             $user->email = $data['email'];
             $user->password = bcrypt($data['password']);
             $user->save();
+
+            DB::commit();
+
+            return $user;
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    public function update(string $id, array $data)
+    {
+        DB::beginTransaction();
+
+        try {
+            $user = User::find($id);
+
+            if (! $user) {
+                DB::rollBack();
+
+                return null;
+            }
+
+            $user->name = $data['name'];
+
+            if (isset($data['password'])) {
+                $user->password = bcrypt($data['password']);
+            }
+
+            $user->save();
+
+            DB::commit();
+
+            return $user;
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    public function delete(string $id)
+    {
+        DB::beginTransaction();
+
+        try {
+            $user = User::find($id);
+
+            if (! $user) {
+                DB::rollBack();
+
+                return null;
+            }
+
+            $user->delete();
 
             DB::commit();
 
