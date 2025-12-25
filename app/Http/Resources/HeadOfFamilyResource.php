@@ -19,7 +19,7 @@ class HeadOfFamilyResource extends JsonResource
             'id' => $this->id,
             'user' => UserResource::make($this->user),
             'profile_picture' => $this->profile_picture
-                ? Storage::url($this->profile_picture)
+                ? Storage::disk('public')->url($this->profile_picture)
                 : null,
             'identity_number' => $this->identity_number,
             'gender' => $this->gender,

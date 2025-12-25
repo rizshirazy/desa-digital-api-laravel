@@ -40,7 +40,6 @@ class HeadOfFamilyRepository implements HeadOfFamilyRepositoryInterface
 
             $headOfFamily = new HeadOfFamily;
             $headOfFamily->user_id = $user->id;
-            $headOfFamily->profile_picture = $data['profile_picture']->asset('assets/head-of-families', 'public');
             $headOfFamily->identity_number = $data['identity_number'];
             $headOfFamily->gender = $data['gender'];
             $headOfFamily->date_of_birth = $data['date_of_birth'];
