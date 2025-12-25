@@ -13,14 +13,14 @@ class UserRepository implements UserRepositoryInterface
     {
         $query = User::query()
             ->search($search)
-            ->when($limit, fn ($q) => $q->take($limit));
+            ->when($limit, fn($q) => $q->take($limit));
 
         return $execute ? $query->get() : $query;
     }
 
-    public function getAllPaginated(?string $search, ?string $rowPerPage)
+    public function getAllPaginated(?string $search, ?int $rowPerPage)
     {
-        $query = $this->getAll($search, $rowPerPage, false);
+        $query = $this->getAll($search, null, false);
 
         return $query->paginate($rowPerPage);
     }
@@ -51,19 +51,11 @@ class UserRepository implements UserRepositoryInterface
         }
     }
 
-    public function update(string $id, array $data)
+    public function update($user, array $data)
     {
         DB::beginTransaction();
 
         try {
-            $user = User::find($id);
-
-            if (! $user) {
-                DB::rollBack();
-
-                return null;
-            }
-
             $user->name = $data['name'];
 
             if (isset($data['password'])) {
@@ -82,19 +74,11 @@ class UserRepository implements UserRepositoryInterface
         }
     }
 
-    public function delete(string $id)
+    public function delete($user)
     {
         DB::beginTransaction();
 
         try {
-            $user = User::find($id);
-
-            if (! $user) {
-                DB::rollBack();
-
-                return null;
-            }
-
             $user->delete();
 
             DB::commit();

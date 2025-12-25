@@ -7,8 +7,8 @@ use App\Http\Requests\UserRequest;
 use App\Http\Resources\PaginateResource;
 use App\Http\Resources\UserResource;
 use App\Interfaces\UserRepositoryInterface;
+use App\Models\User;
 use Exception;
-use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
@@ -22,12 +22,12 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
         try {
             $users = $this->userRepository->getAll(
-                $request->search,
-                $request->limit,
+                request('search'),
+                request('limit'),
                 true
             );
 
@@ -54,15 +54,9 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(User $user)
     {
         try {
-            $user = $this->userRepository->getById($id);
-
-            if (! $user) {
-                return ResponseHelper::JsonResponse(false, 'User tidak ditemukan', null, 404);
-            }
-
             return ResponseHelper::JsonResponse(true, 'Detail User berhasil didapatkan', UserResource::make($user), 200);
         } catch (Exception $e) {
             return ResponseHelper::JsonResponse(false, $e->getMessage(), null, 500);
@@ -72,14 +66,10 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UserRequest $request, string $id)
+    public function update(UserRequest $request, User $user)
     {
         try {
-            $user = $this->userRepository->update($id, $request->validated());
-
-            if (! $user) {
-                return ResponseHelper::JsonResponse(false, 'User tidak ditemukan', null, 404);
-            }
+            $user = $this->userRepository->update($user, $request->validated());
 
             return ResponseHelper::JsonResponse(true, 'User berhasil diperbarui', UserResource::make($user), 200);
         } catch (Exception $e) {
@@ -90,14 +80,10 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(User $user)
     {
         try {
-            $user = $this->userRepository->delete($id);
-
-            if (! $user) {
-                return ResponseHelper::JsonResponse(false, 'User tidak ditemukan', null, 404);
-            }
+            $user = $this->userRepository->delete($user);
 
             return ResponseHelper::JsonResponse(true, 'User berhasil dihapus', UserResource::make($user), 200);
         } catch (Exception $e) {
@@ -105,9 +91,9 @@ class UserController extends Controller
         }
     }
 
-    public function getAllPaginated(Request $request)
+    public function getAllPaginated()
     {
-        $validated = $request->validate([
+        $validated = request()->validate([
             'search' => 'nullable|string',
             'row_per_page' => 'required|integer',
         ]);
