@@ -18,26 +18,32 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->render(function (ModelNotFoundException $e, $request) {
-            if (! $request->expectsJson()) {
-                return null;
-            }
-
-            $model = class_basename($e->getModel());
-
+        $messageForModel = function (ModelNotFoundException $e): string {
             $messages = [
                 'User' => 'User tidak ditemukan',
                 'HeadOfFamily' => 'Kepala Keluarga tidak ditemukan',
             ];
 
-            $message = $messages[$model] ?? 'Data tidak ditemukan';
+            return $messages[class_basename($e->getModel())] ?? 'Data tidak ditemukan';
+        };
 
-            return ResponseHelper::JsonResponse(false, $message, null, 404);
-        });
-
-        $exceptions->render(function (NotFoundHttpException $e, $request) {
+        $exceptions->render(function (ModelNotFoundException $e, $request) use ($messageForModel) {
             if (! $request->expectsJson()) {
                 return null;
+            }
+
+            return ResponseHelper::JsonResponse(false, $messageForModel($e), null, 404);
+        });
+
+        $exceptions->render(function (NotFoundHttpException $e, $request) use ($messageForModel) {
+            if (! $request->expectsJson()) {
+                return null;
+            }
+
+            // When implicit route model binding fails (including soft-deleted models),
+            // Laravel may wrap the ModelNotFoundException inside a NotFoundHttpException.
+            if ($e->getPrevious() instanceof ModelNotFoundException) {
+                return ResponseHelper::JsonResponse(false, $messageForModel($e->getPrevious()), null, 404);
             }
 
             return ResponseHelper::JsonResponse(false, 'Endpoint tidak ditemukan', null, 404);
