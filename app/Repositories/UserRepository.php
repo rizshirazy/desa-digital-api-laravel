@@ -13,7 +13,7 @@ class UserRepository implements UserRepositoryInterface
     {
         $query = User::query()
             ->search($search)
-            ->when($limit, fn($q) => $q->take($limit));
+            ->when($limit, fn ($q) => $q->take($limit));
 
         return $execute ? $query->get() : $query;
     }
@@ -57,8 +57,9 @@ class UserRepository implements UserRepositoryInterface
 
         try {
             $user->name = $data['name'];
+            $user->email = $data['email'];
 
-            if (isset($data['password'])) {
+            if (! empty($data['password'])) {
                 $user->password = bcrypt($data['password']);
             }
 

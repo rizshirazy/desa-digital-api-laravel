@@ -16,12 +16,14 @@ class UserRequest extends FormRequest
     public function rules(): array
     {
         $isCreate = $this->isMethod('post');
+        $user = $this->route('user');
+        $userId = is_object($user) ? $user->id : $user;
 
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => $isCreate
                 ? ['required', 'string', 'max:255', Rule::unique('users', 'email')]
-                : ['prohibited'],
+                : ['required', 'string', 'max:255', Rule::unique('users', 'email')->ignore($userId)],
             'password' => $isCreate
                 ? ['required', 'string', Password::defaults()]
                 : ['nullable', 'string', Password::defaults()],

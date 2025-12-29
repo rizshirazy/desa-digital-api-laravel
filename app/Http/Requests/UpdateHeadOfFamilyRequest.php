@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 
 class UpdateHeadOfFamilyRequest extends FormRequest
 {
@@ -16,12 +17,13 @@ class UpdateHeadOfFamilyRequest extends FormRequest
     {
         $headOfFamily = $this->route('head_of_family');
         $headOfFamilyId = is_object($headOfFamily) ? $headOfFamily->id : $headOfFamily;
+        $userId = is_object($headOfFamily) ? $headOfFamily->user_id : null;
 
         return [
-            // User fields are not updatable here
-            'name' => ['prohibited'],
-            'email' => ['prohibited'],
-            'password' => ['prohibited'],
+            // User fields (required; only password is optional)
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'max:255', Rule::unique('users', 'email')->ignore($userId)],
+            'password' => ['nullable', 'string', Password::defaults()],
             // Head of family data
             'profile_picture' => ['nullable', 'image', 'mimes:jpeg,jpg,png', 'max:2048'],
             'identity_number' => [

@@ -13,7 +13,7 @@ class HeadOfFamilyRepository implements HeadOfFamilyRepositoryInterface
     {
         $query = HeadOfFamily::query()
             ->search($search)
-            ->when($limit, fn($q) => $q->take($limit));
+            ->when($limit, fn ($q) => $q->take($limit));
 
         return $execute ? $query->get() : $query;
     }
@@ -71,11 +71,23 @@ class HeadOfFamilyRepository implements HeadOfFamilyRepositoryInterface
             $headOfFamily->occupation = $data['occupation'];
             $headOfFamily->marital_status = $data['marital_status'];
 
-            if (!empty($data['profile_picture'])) {
+            if (! empty($data['profile_picture'])) {
                 $headOfFamily->profile_picture = $data['profile_picture']->store('assets/head-of-families', 'public');
             }
 
             $headOfFamily->save();
+
+            $userRepository = new UserRepository;
+            $userData = [];
+
+            $userData['name'] = $data['name'];
+            $userData['email'] = $data['email'];
+
+            if (! empty($data['password'])) {
+                $userData['password'] = $data['password'];
+            }
+
+            $userRepository->update($headOfFamily->user, $userData);
 
             DB::commit();
 
