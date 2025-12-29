@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 
-class HeadOfFamilyResource extends JsonResource
+class FamilyMemberResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -17,6 +17,7 @@ class HeadOfFamilyResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'head_of_family' => HeadOfFamilyResource::make($this->whenLoaded('headOfFamily')),
             'user' => UserResource::make($this->user),
             'profile_picture' => $this->profile_picture
                 ? Storage::disk('public')->url($this->profile_picture)
@@ -27,7 +28,7 @@ class HeadOfFamilyResource extends JsonResource
             'phone_number' => $this->phone_number,
             'occupation' => $this->occupation,
             'marital_status' => $this->marital_status,
-            'family_members' => FamilyMemberResource::collection($this->whenLoaded('familyMembers')),
+            'relation' => $this->relation,
         ];
     }
 }

@@ -58,6 +58,8 @@ class HeadOfFamilyController extends Controller
     public function show(HeadOfFamily $head_of_family)
     {
         try {
+            $head_of_family->load('familyMembers');
+
             return ResponseHelper::JsonResponse(true, 'Detail Kepala Keluarga berhasil didapatkan', HeadOfFamilyResource::make($head_of_family), 200);
         } catch (Exception $e) {
             return ResponseHelper::JsonResponse(false, $e->getMessage(), null, 500);
