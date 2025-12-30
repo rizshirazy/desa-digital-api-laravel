@@ -23,6 +23,8 @@ return Application::configure(basePath: dirname(__DIR__))
                 'User' => 'User tidak ditemukan',
                 'HeadOfFamily' => 'Kepala Keluarga tidak ditemukan',
                 'FamilyMember' => 'Anggota Keluarga tidak ditemukan',
+                'SocialAssistance' => 'Bantuan Sosial tidak ditemukan',
+                'SocialAssistanceRecipient' => 'Penerima Bantuan Sosial tidak ditemukan',
             ];
 
             return $messages[class_basename($e->getModel())] ?? 'Data tidak ditemukan';
