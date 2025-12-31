@@ -23,13 +23,14 @@ class SocialAssistanceRecipientSeeder extends Seeder
 
         foreach ($headFamilies as $headFamily) {
             $recipientsCount = rand(1, 2);
+            $selectedAssistances = $socialAssistances->shuffle()->take($recipientsCount);
 
-            SocialAssistanceRecipient::factory()
-                ->count($recipientsCount)
-                ->create([
+            foreach ($selectedAssistances as $assistance) {
+                SocialAssistanceRecipient::factory()->create([
                     'head_of_family_id' => $headFamily->id,
-                    'social_assistance_id' => $socialAssistances->random()->id,
+                    'social_assistance_id' => $assistance->id,
                 ]);
+            }
         }
     }
 }

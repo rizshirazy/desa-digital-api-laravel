@@ -23,13 +23,14 @@ class EventParticipantSeeder extends Seeder
 
         foreach ($events as $event) {
             $participantCount = rand(2, 5);
+            $selectedFamilies = $families->shuffle()->take($participantCount);
 
-            EventParticipant::factory()
-                ->count($participantCount)
-                ->create([
+            foreach ($selectedFamilies as $family) {
+                EventParticipant::factory()->create([
                     'event_id' => $event->id,
-                    'head_of_family_id' => $families->random()->id,
+                    'head_of_family_id' => $family->id,
                 ]);
+            }
         }
     }
 }
