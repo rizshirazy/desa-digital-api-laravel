@@ -21,6 +21,10 @@ class Profile extends Model
         'total_area',
     ];
 
+    protected $casts = [
+        'people' => 'integer',
+    ];
+
     public function images(): HasMany
     {
         return $this->hasMany(ProfileImage::class);
