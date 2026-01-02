@@ -27,6 +27,8 @@ return Application::configure(basePath: dirname(__DIR__))
                 'SocialAssistanceRecipient' => 'Penerima Bantuan Sosial tidak ditemukan',
                 'Event' => 'Event tidak ditemukan',
                 'EventParticipant' => 'Peserta Event tidak ditemukan',
+                'Development' => 'Pembangunan tidak ditemukan',
+                'DevelopmentApplicant' => 'Pendaftar Pembangunan tidak ditemukan',
             ];
 
             return $messages[class_basename($e->getModel())] ?? 'Data tidak ditemukan';
