@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
+use function Symfony\Component\Clock\now;
+
 class UserSeeder extends Seeder
 {
     /**
@@ -12,6 +14,13 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory(15)->create();
+        User::create([
+            'name' => 'Admin',
+            'email' => 'admin@app.com',
+            'password' => bcrypt('password'),
+            'email_verified_at' => now(),
+        ])->assignRole('admin');
+
+        // User::factory(5)->create();
     }
 }
