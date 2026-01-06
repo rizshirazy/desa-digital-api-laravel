@@ -26,10 +26,14 @@ class DevelopmentApplicantController extends Controller
     public function index()
     {
         try {
+            $this->authorize('viewAny', DevelopmentApplicant::class);
+
+            $ownedBy = auth()->user()?->hasRole('admin') ? null : auth()->id();
             $applicants = $this->developmentApplicantRepository->getAll(
                 request('search'),
                 request('limit'),
-                true
+                true,
+                $ownedBy
             );
 
             return ResponseHelper::JsonResponse(true, 'Data Pendaftar Pembangunan berhasil didapatkan', DevelopmentApplicantResource::collection($applicants), 200);
@@ -44,7 +48,16 @@ class DevelopmentApplicantController extends Controller
     public function store(StoreDevelopmentApplicantRequest $request)
     {
         try {
-            $applicant = $this->developmentApplicantRepository->create($request->validated());
+            $data = $request->validated();
+            $user = $request->user();
+
+            if (! $user->hasRole('admin')) {
+                $data['user_id'] = $user->id;
+            }
+
+            $this->authorize('create', DevelopmentApplicant::class);
+
+            $applicant = $this->developmentApplicantRepository->create($data);
 
             return ResponseHelper::JsonResponse(true, 'Pendaftar Pembangunan berhasil dibuat', DevelopmentApplicantResource::make($applicant), 201);
         } catch (Exception $e) {
@@ -58,6 +71,7 @@ class DevelopmentApplicantController extends Controller
     public function show(DevelopmentApplicant $development_applicant)
     {
         try {
+            $this->authorize('view', $development_applicant);
             $development_applicant->load(['development', 'user']);
 
             return ResponseHelper::JsonResponse(true, 'Detail Pendaftar Pembangunan berhasil didapatkan', DevelopmentApplicantResource::make($development_applicant), 200);
@@ -72,7 +86,15 @@ class DevelopmentApplicantController extends Controller
     public function update(UpdateDevelopmentApplicantRequest $request, DevelopmentApplicant $development_applicant)
     {
         try {
-            $applicant = $this->developmentApplicantRepository->update($development_applicant, $request->validated());
+            $this->authorize('update', $development_applicant);
+
+            $data = $request->validated();
+
+            if (! $request->user()->hasRole('admin')) {
+                $data['user_id'] = $development_applicant->user_id;
+            }
+
+            $applicant = $this->developmentApplicantRepository->update($development_applicant, $data);
 
             return ResponseHelper::JsonResponse(true, 'Pendaftar Pembangunan berhasil diperbarui', DevelopmentApplicantResource::make($applicant), 200);
         } catch (Exception $e) {
@@ -86,6 +108,7 @@ class DevelopmentApplicantController extends Controller
     public function destroy(DevelopmentApplicant $development_applicant)
     {
         try {
+            $this->authorize('delete', $development_applicant);
             $applicant = $this->developmentApplicantRepository->delete($development_applicant);
 
             return ResponseHelper::JsonResponse(true, 'Pendaftar Pembangunan berhasil dihapus', DevelopmentApplicantResource::make($applicant), 200);
@@ -102,9 +125,13 @@ class DevelopmentApplicantController extends Controller
         ]);
 
         try {
+            $this->authorize('viewAny', DevelopmentApplicant::class);
+
+            $ownedBy = auth()->user()?->hasRole('admin') ? null : auth()->id();
             $applicants = $this->developmentApplicantRepository->getAllPaginated(
                 $validated['search'] ?? null,
                 $validated['row_per_page'],
+                $ownedBy,
             );
 
             return ResponseHelper::JsonResponse(true, 'Data Pendaftar Pembangunan berhasil didapatkan', PaginateResource::make($applicants, DevelopmentApplicantResource::class), 200);

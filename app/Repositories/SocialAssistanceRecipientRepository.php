@@ -9,20 +9,21 @@ use Illuminate\Support\Facades\DB;
 
 class SocialAssistanceRecipientRepository implements SocialAssistanceRecipientRepositoryInterface
 {
-    public function getAll(?string $search, ?int $limit, bool $execute)
+    public function getAll(?string $search, ?int $limit, bool $execute, ?string $ownedBy = null)
     {
         $query = SocialAssistanceRecipient::query()
             ->with(['socialAssistance', 'family.user'])
             ->search($search)
+            ->when($ownedBy, fn($q) => $q->whereHas('family', fn($fq) => $fq->where('user_id', $ownedBy)))
             ->latest()
             ->when($limit, fn($q) => $q->take($limit));
 
         return $execute ? $query->get() : $query;
     }
 
-    public function getAllPaginated(?string $search, ?int $rowPerPage)
+    public function getAllPaginated(?string $search, ?int $rowPerPage, ?string $ownedBy = null)
     {
-        $query = $this->getAll($search, null, false);
+        $query = $this->getAll($search, null, false, $ownedBy);
 
         return $query->paginate($rowPerPage);
     }

@@ -9,18 +9,19 @@ use Illuminate\Support\Facades\DB;
 
 class HeadOfFamilyRepository implements HeadOfFamilyRepositoryInterface
 {
-    public function getAll(?string $search, ?int $limit, bool $execute)
+    public function getAll(?string $search, ?int $limit, bool $execute, ?string $ownedBy = null)
     {
         $query = HeadOfFamily::query()
             ->search($search)
-            ->when($limit, fn ($q) => $q->take($limit));
+            ->when($ownedBy, fn($q) => $q->where('user_id', $ownedBy))
+            ->when($limit, fn($q) => $q->take($limit));
 
         return $execute ? $query->get() : $query;
     }
 
-    public function getAllPaginated(?string $search, ?int $rowPerPage)
+    public function getAllPaginated(?string $search, ?int $rowPerPage, ?string $ownedBy = null)
     {
-        $query = $this->getAll($search, null, false);
+        $query = $this->getAll($search, null, false, $ownedBy);
 
         return $query->paginate($rowPerPage);
     }

@@ -9,19 +9,20 @@ use Illuminate\Support\Facades\DB;
 
 class FamilyMemberRepository implements FamilyMemberRepositoryInterface
 {
-    public function getAll(?string $search, ?int $limit, bool $execute)
+    public function getAll(?string $search, ?int $limit, bool $execute, ?string $ownedBy = null)
     {
         $query = FamilyMember::query()
             ->with(['user', 'headOfFamily.user'])
             ->search($search)
+            ->when($ownedBy, fn ($q) => $q->whereHas('headOfFamily', fn ($hq) => $hq->where('user_id', $ownedBy)))
             ->when($limit, fn ($q) => $q->take($limit));
 
         return $execute ? $query->get() : $query;
     }
 
-    public function getAllPaginated(?string $search, ?int $rowPerPage)
+    public function getAllPaginated(?string $search, ?int $rowPerPage, ?string $ownedBy = null)
     {
-        $query = $this->getAll($search, null, false);
+        $query = $this->getAll($search, null, false, $ownedBy);
 
         return $query->paginate($rowPerPage);
     }

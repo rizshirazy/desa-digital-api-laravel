@@ -26,10 +26,14 @@ class FamilyMemberController extends Controller
     public function index()
     {
         try {
+            $this->authorize('viewAny', FamilyMember::class);
+
+            $ownedBy = auth()->user()?->hasRole('admin') ? null : auth()->id();
             $familyMembers = $this->familyMemberRepository->getAll(
                 request('search'),
                 request('limit'),
-                true
+                true,
+                $ownedBy
             );
 
             return ResponseHelper::JsonResponse(true, 'Data Anggota Keluarga berhasil didapatkan', FamilyMemberResource::collection($familyMembers), 200);
@@ -44,7 +48,16 @@ class FamilyMemberController extends Controller
     public function store(StoreFamilyMemberRequest $request)
     {
         try {
-            $familyMember = $this->familyMemberRepository->create($request->validated());
+            $data = $request->validated();
+            $user = $request->user();
+
+            $this->authorize('create', [FamilyMember::class, $data['head_of_family_id']]);
+
+            if (! $user->hasRole('admin')) {
+                $data['head_of_family_id'] = $user->headOfFamily->id;
+            }
+
+            $familyMember = $this->familyMemberRepository->create($data);
 
             return ResponseHelper::JsonResponse(true, 'Anggota Keluarga berhasil ditambahkan', FamilyMemberResource::make($familyMember), 201);
         } catch (Exception $e) {
@@ -58,6 +71,7 @@ class FamilyMemberController extends Controller
     public function show(FamilyMember $family_member)
     {
         try {
+            $this->authorize('view', $family_member);
             $family_member->load('headOfFamily');
 
             return ResponseHelper::JsonResponse(true, 'Detail Anggota Keluarga berhasil didapatkan', FamilyMemberResource::make($family_member), 200);
@@ -72,7 +86,15 @@ class FamilyMemberController extends Controller
     public function update(UpdateFamilyMemberRequest $request, FamilyMember $family_member)
     {
         try {
-            $familyMember = $this->familyMemberRepository->update($family_member, $request->validated());
+            $this->authorize('update', $family_member);
+
+            $data = $request->validated();
+
+            if (! $request->user()->hasRole('admin')) {
+                $data['head_of_family_id'] = $family_member->head_of_family_id;
+            }
+
+            $familyMember = $this->familyMemberRepository->update($family_member, $data);
 
             return ResponseHelper::JsonResponse(true, 'Anggota Keluarga berhasil diperbarui', FamilyMemberResource::make($familyMember), 200);
         } catch (Exception $e) {
@@ -86,6 +108,7 @@ class FamilyMemberController extends Controller
     public function destroy(FamilyMember $family_member)
     {
         try {
+            $this->authorize('delete', $family_member);
             $familyMember = $this->familyMemberRepository->delete($family_member);
 
             return ResponseHelper::JsonResponse(true, 'Anggota Keluarga berhasil dihapus', FamilyMemberResource::make($familyMember), 200);
@@ -102,9 +125,13 @@ class FamilyMemberController extends Controller
         ]);
 
         try {
+            $this->authorize('viewAny', FamilyMember::class);
+
+            $ownedBy = auth()->user()?->hasRole('admin') ? null : auth()->id();
             $familyMembers = $this->familyMemberRepository->getAllPaginated(
                 $validated['search'] ?? null,
                 $validated['row_per_page'],
+                $ownedBy,
             );
 
             return ResponseHelper::JsonResponse(true, 'Data Anggota Keluarga berhasil didapatkan', PaginateResource::make($familyMembers, FamilyMemberResource::class), 200);
