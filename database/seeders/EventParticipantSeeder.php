@@ -22,7 +22,7 @@ class EventParticipantSeeder extends Seeder
         }
 
         foreach ($events as $event) {
-            $participantCount = rand(2, 5);
+            $participantCount = rand(2, 15);
             $selectedFamilies = $families->shuffle()->take($participantCount);
 
             foreach ($selectedFamilies as $family) {

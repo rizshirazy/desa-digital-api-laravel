@@ -12,7 +12,9 @@ class HeadOfFamilySeeder extends Seeder
      */
     public function run(): void
     {
-        HeadOfFamily::factory(15)
+        $count = rand(10, 100);
+
+        HeadOfFamily::factory($count)
             ->create()
             ->each(function (HeadOfFamily $headOfFamily) {
                 $headOfFamily->user?->assignRole('head-of-family');

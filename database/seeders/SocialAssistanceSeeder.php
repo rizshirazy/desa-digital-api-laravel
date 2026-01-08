@@ -12,6 +12,8 @@ class SocialAssistanceSeeder extends Seeder
      */
     public function run(): void
     {
-        SocialAssistance::factory(10)->create();
+        $count = rand(10, 100);
+
+        SocialAssistance::factory($count)->create();
     }
 }

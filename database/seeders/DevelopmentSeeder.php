@@ -12,6 +12,8 @@ class DevelopmentSeeder extends Seeder
      */
     public function run(): void
     {
-        Development::factory(10)->create();
+        $count = rand(10, 100);
+
+        Development::factory($count)->create();
     }
 }
